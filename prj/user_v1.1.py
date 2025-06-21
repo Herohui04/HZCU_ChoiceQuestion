@@ -490,7 +490,7 @@ def process_folder(input_folder, output_html):
 
   <h1>习思想选择合集</h1> 
   <div class="info-bar"> 
-    共 {total_questions} 道题目 | 作者：2167143949@qq.com | 生成时间: {datetime.now().strftime('%Y.%m')} 
+    共 {total_questions} 道题目 | 作者：路晖 | 生成时间: {datetime.now().strftime('%Y.%m')} 
   </div> 
 
   <h2 id="single-choice-section">一、单选题</h2> 
