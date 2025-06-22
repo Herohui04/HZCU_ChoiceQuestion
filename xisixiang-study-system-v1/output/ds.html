@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>习思想选择合集（登录版）</title>
+  <style>
+    /* 基础样式 */
+    body {
+      font-family: "Microsoft YaHei", sans-serif;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #f5f5f5;
+      padding-right: 280px;
+    }
+
+    /* 登录界面样式 */
+    .login-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 10000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+    }
+
+    .login-box {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      color: #333;
+      width: 350px;
+      max-width: 90%;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    .login-title {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #1e88e5;
+    }
+
+    .login-input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      background-color: #1e88e5;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .login-btn:hover {
+      background-color: #1565c0;
+    }
+
+    .login-error {
+      color: #e53935;
+      text-align: center;
+      margin: 10px 0;
+      font-size: 14px;
+    }
+
+    /* 用户信息栏 */
+    .user-info {
+      position: fixed;
+      top: 10px;
+      right: 300px;
+      background: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      font-size: 14px;
+      z-index: 1001;
+    }
+
+    .logout-btn {
+      color: #1e88e5;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+
+    /* 题目样式 */
+    .question-block {
+      background-color: white;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    .question-header {
+      margin-bottom: 10px;
+      font-weight: bold;
+      padding-left: 30px;
+    }
+
+    .question-marker {
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      cursor: pointer;
+      font-size: 1.2em;
+      user-select: none;
+    }
+
+    .question-marker.marked {
+      color: gold;
+      text-shadow: 0 0 2px black;
+    }
+
+    .options {
+      margin-left: 20px;
+    }
+
+    .option {
+      margin-bottom: 5px;
+      padding: 5px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .option:hover {
+      background-color: #f0f0f0;
+    }
+
+    .option.selected {
+      background-color: #e0e0e0 !important;
+    }
+
+    .option.correct {
+      background-color: #e8f5e9 !important;
+      color: #2e7d32;
+      font-weight: bold;
+    }
+
+    .option.wrong {
+      background-color: #ffebee !important;
+      color: #c62828;
+      text-decoration: line-through;
+    }
+
+    .correct-answer {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #ccc;
+      font-style: italic;
+      color: #2c3e50;
+      display: none;
+    }
+
+    .answer-feedback {
+      margin-top: 10px;
+      font-weight: bold;
+      display: none;
+    }
+
+    .check-btn, .reset-btn {
+      padding: 5px 10px;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .check-btn {
+      background-color: #1e88e5;
+    }
+
+    .check-btn:hover {
+      background-color: #1565c0;
+    }
+
+    .reset-btn {
+      background-color: #757575;
+    }
+
+    .reset-btn:hover {
+      background-color: #616161;
+    }
+
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    h2 {
+      color: #1e88e5;
+      margin-top: 30px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
+    }
+
+    .info-bar {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 0.9em;
+      color: #7f8c8d;
+    }
+
+    /* 导航面板 */
+    .nav-panel {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      max-height: 80vh;
+      overflow-y: auto;
+      width: 250px;
+      z-index: 1000;
+    }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+    }
+
+    .bookmark-list {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 10px;
+    }
+
+    .bookmark-item {
+      padding: 5px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .bookmark-item:hover {
+      background-color: #f0f0f0;
+    }
+
+    /* 移动端适配 */
+    @media (max-width: 768px) {
+      body {
+        padding-right: 20px;
+      }
+
+      .nav-panel {
+        position: static;
+        width: auto;
+        max-height: none;
+        margin-bottom: 20px;
+      }
+
+      .user-info {
+        right: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- 登录覆盖层 -->
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-box">
+      <h2 class="login-title">习思想学习系统</h2>
+      <div id="loginError" class="login-error"></div>
+
+      <form id="loginForm" onsubmit="return false;">
+        <input type="text" id="username" class="login-input" placeholder="用户名" required>
+        <input type="password" id="password" class="login-input" placeholder="密码" required>
+        <button type="submit" class="login-btn" onclick="attemptLogin()">登录</button>
+      </form>
+
+      <div class="login-footer">
+        请联系管理员注册账号
+      </div>
+    </div>
+  </div>
+
+  <!-- 用户信息栏 -->
+  <div id="userInfoBar" class="user-info" style="display:none;">
+    欢迎, <span id="displayUserName"></span>
+    <span class="logout-btn" onclick="logout()">退出</span>
+  </div>
+
+  <!-- 主内容区域 -->
+  <div id="mainContent" style="display:none;">
+    <div class="nav-panel" id="navPanel">
+      <div class="nav-buttons">
+        <button onclick="scrollToTop()">顶部</button>
+        <button onclick="scrollToBottom()">底部</button>
+        <button class="toggle-answers-btn" onclick="toggleAllAnswers()">显示所有答案</button>
+        <button class="clear-bookmarks-btn" onclick="clearAllBookmarks()">清除所有标记</button>
+      </div>
+
+      <h3>题目导航</h3>
+      <input type="text" id="searchInput" placeholder="搜索题目..." oninput="searchQuestions()">
+
+      <h3>标记题目</h3>
+      <div class="bookmark-list" id="bookmarkList">
+        <div style="color:#999; text-align:center;">暂无标记题目</div>
+      </div>
+    </div>
+
+    <h1>习思想选择合集</h1>
+    <div class="info-bar">
+      共 <span id="totalQuestions">0</span> 道题目 | 生成时间: <span id="generateTime"></span>
+    </div>
+
+    <h2 id="single-choice-section">一、单选题</h2>
+    <div id="singleChoiceBlocks"></div>
+
+    <h2 id="multi-choice-section">二、多选题</h2>
+    <div id="multiChoiceBlocks"></div>
+
+    <h2 id="judge-section">三、判断题</h2>
+    <div id="judgeBlocks"></div>
+  </div>
+
+<script>
+// ================= 用户登录系统 =================
+const USER_DATABASE = {
+  "admin": {
+    password: "admin123",
+    name: "管理员"
+  },
+  "lisi": {
+    password: "123",
+    name: "李四"
+  }
+};
+
+// 尝试登录
+function attemptLogin() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const errorElement = document.getElementById('loginError');
+
+  if (!username || !password) {
+    errorElement.textContent = "请输入用户名和密码";
+    return;
+  }
+
+  const user = USER_DATABASE[username];
+  if (!user) {
+    errorElement.textContent = "用户名不存在";
+    return;
+  }
+
+  if (password !== user.password) {
+    errorElement.textContent = "密码错误";
+    return;
+  }
+
+  // 登录成功
+  startUserSession(username, user.name);
+}
+
+// 启动用户会话
+function startUserSession(username, displayName) {
+  localStorage.setItem('xxtSession', JSON.stringify({
+    username: username,
+    displayName: displayName,
+    loginTime: new Date().toISOString()
+  }));
+
+  // 更新UI
+  document.getElementById('loginOverlay').style.display = 'none';
+  document.getElementById('userInfoBar').style.display = 'block';
+  document.getElementById('mainContent').style.display = 'block';
+  document.getElementById('displayUserName').textContent = displayName;
+
+  // 初始化应用
+  initOriginalApp();
+}
+
+// 退出登录
+function logout() {
+  localStorage.removeItem('xxtSession');
+  location.reload();
+}
+
+// ================= 题目处理系统 =================
+let bookmarks = {};
+const correctAnswers = {};
+const userSelections = {};
+let answersVisible = false;
+
+// 初始化题目
+function initOriginalApp() {
+  // 加载书签
+  bookmarks = loadBookmarks() || {};
+
+  // 初始化题目数据
+  const sampleQuestions = {
+    single: [
+      `1. 习近平新时代中国特色社会主义思想的核心要义是：
+A. 实现社会主义现代化
+B. 坚持和发展中国特色社会主义
+C. 全面建成小康社会
+D. 全面深化改革
+正确答案: B`,
+      `2. "两个维护"是指：
+A. 维护习近平总书记党中央的核心、全党的核心地位，维护党中央权威和集中统一领导
+B. 维护国家主权和领土完整，维护民族尊严
+C. 维护社会公平正义，维护人民合法权益
+D. 维护世界和平，维护国际公平正义
+正确答案: A`
+    ],
+    multi: [
+      `1. 下列哪些是"四个全面"战略布局的内容？（多选题）
+A. 全面建设社会主义现代化国家
+B. 全面深化改革
+C. 全面依法治国
+D. 全面从严治党
+正确答案: A B C D`,
+      `2. "五位一体"总体布局包括：（多选题）
+A. 经济建设
+B. 政治建设
+C. 文化建设
+D. 社会建设
+E. 生态文明建设
+正确答案: A B C D E`
+    ],
+    judge: [
+      `1. 中国特色社会主义最本质的特征是中国共产党的领导。（判断题）
+A. 正确
+B. 错误
+正确答案: A`,
+      `2. 新时代我国社会主要矛盾已经转化为人民日益增长的美好生活需要和不平衡不充分的发展之间的矛盾。（判断题）
+A. 正确
+B. 错误
+正确答案: A`
+    ]
+  };
+
+  // 处理单选题
+  let single_html = "";
+  sampleQuestions.single.forEach((q, i) => {
+    const result = formatQuestionBlock(q, i+1, "single");
+    single_html += result.html;
+    correctAnswers[result.anchor_id] = result.answer_line.split(":")[1].trim().split(/\s+/);
+    userSelections[result.anchor_id] = [];
+  });
+
+  // 处理多选题
+  let multi_html = "";
+  sampleQuestions.multi.forEach((q, i) => {
+    const result = formatQuestionBlock(q, i+1, "multi");
+    multi_html += result.html;
+    correctAnswers[result.anchor_id] = result.answer_line.split(":")[1].trim().split(/\s+/);
+    userSelections[result.anchor_id] = [];
+  });
+
+  // 处理判断题
+  let judge_html = "";
+  sampleQuestions.judge.forEach((q, i) => {
+    const result = formatQuestionBlock(q, i+1, "judge");
+    judge_html += result.html;
+    correctAnswers[result.anchor_id] = [result.answer_line.includes("A") ? "A" : "B"];
+    userSelections[result.anchor_id] = [];
+  });
+
+  // 更新DOM
+  document.getElementById('singleChoiceBlocks').innerHTML = single_html;
+  document.getElementById('multiChoiceBlocks').innerHTML = multi_html;
+  document.getElementById('judgeBlocks').innerHTML = judge_html;
+  document.getElementById('totalQuestions').textContent =
+    sampleQuestions.single.length + sampleQuestions.multi.length + sampleQuestions.judge.length;
+  document.getElementById('generateTime').textContent = new Date().toLocaleDateString();
+
+  // 初始化标记状态
+  Object.keys(bookmarks).forEach(id => {
+    if (bookmarks[id]) {
+      const marker = document.querySelector(`#${id} .question-marker`);
+      if (marker) marker.classList.add('marked');
+    }
+  });
+
+  updateBookmarkList();
+
+  // 初始化选项点击事件
+  initQuestionInteractions();
+}
+
+// 格式化题目块
+function formatQuestionBlock(block, new_number, question_type) {
+  if (!block.trim()) return { html: "", answer_line: "", anchor_id: "" };
+
+  const lines = block.split('\n').map(line => line.trim()).filter(line => line);
+  let original_number = "";
+
+  if (lines.length && /^\d+\./.test(lines[0])) {
+    original_number = lines[0].match(/^(\d+)\./)[1];
+  }
+
+  let detected_type = "";
+  const question_desc = [];
+  let i = 0;
+
+  while (i < lines.length && !/^[A-D]\.?$/.test(lines[i]) && !lines[i].startsWith("正确答案")) {
+    if (lines[i] && !lines[i].startsWith("答案解释")) {
+      if (lines[i].includes("单选题")) detected_type = "single";
+      else if (lines[i].includes("多选题")) detected_type = "multi";
+      else if (lines[i].includes("判断题")) detected_type = "judge";
+      question_desc.push(lines[i]);
+    }
+    i++;
+  }
+
+  const q_type = question_type || detected_type;
+  const options = [];
+  const option_correct = [];
+  let correct_letters = [];
+  let answer_line = lines.find(line => line.startsWith("正确答案")) || "";
+
+  if (answer_line) {
+    correct_letters = answer_line.split(":")[1].trim().split(/\s+/);
+  }
+
+  // 判断题特殊处理
+  if (q_type === "judge") {
+    options.push("A. 正确", "B. 错误");
+    if (correct_letters.length) {
+      option_correct.push(correct_letters[0] === "A", correct_letters[0] === "B");
+    }
+  } else {
+    // 处理选择题选项
+    while (i < lines.length && /^[A-D]\.?$/.test(lines[i])) {
+      const letter = lines[i].replace('.', '');
+      i++;
+      if (i < lines.length && lines[i] === '.') i++;
+
+      const content_lines = [];
+      while (i < lines.length && !/^[A-D]\.?$/.test(lines[i]) && !lines[i].startsWith("正确答案")) {
+        if (lines[i] && lines[i] !== '.') {
+          content_lines.push(lines[i].trim());
+        }
+        i++;
+      }
+
+      const option_content = content_lines.join('').trim();
+      if (option_content) {
+        options.push(`${letter}. ${option_content}`);
+        option_correct.push(correct_letters.includes(letter));
+      }
+    }
+  }
+
+  // 重新编号第一行
+  if (new_number !== undefined && question_desc.length) {
+    question_desc[0] = question_desc[0].replace(/^\d+\./, `${new_number}.`);
+  }
+
+  // 生成唯一锚点ID
+  const anchor_id = `q${new_number || original_number}`;
+  const question_class = `question-block ${q_type ? q_type + '-choice' : ''}`;
+
+  // 构建HTML
+  let html_result = [
+    `<div class="${question_class}" id="${anchor_id}">`,
+    '  <div class="question-header">',
+    `    <div class="question-marker" onclick="toggleBookmark('${anchor_id}')">📌</div>`,
+    ...question_desc.map(desc => `    <div class="question-desc">${desc}</div>`),
+    '  </div>'
+  ];
+
+  if (options.length) {
+    html_result.push('  <div class="options">');
+    options.forEach((option, idx) => {
+      html_result.push(
+        `    <div class="option" data-correct="${option_correct[idx]}" data-letter="${option[0]}">${option}</div>`
+      );
+    });
+    html_result.push('  </div>');
+    html_result.push('  <div style="display: flex; justify-content: space-between; margin-top: 10px;">');
+    html_result.push(`    <button class="check-btn" onclick="checkSingleAnswer('${anchor_id}')">确认答案</button>`);
+    html_result.push(`    <button class="reset-btn" onclick="resetQuestion('${anchor_id}')">重置</button>`);
+    html_result.push('  </div>');
+  }
+
+  html_result.push('  <div class="answer-feedback" style="display:none;"></div>');
+  if (answer_line) {
+    html_result.push(`  <div class="correct-answer" style="display:none;">${answer_line}</div>`);
+  }
+  html_result.push('</div>');
+
+  return {
+    html: html_result.join('\n'),
+    answer_line,
+    anchor_id
+  };
+}
+
+// 初始化题目交互
+function initQuestionInteractions() {
+  document.querySelectorAll('.question-block').forEach(block => {
+    const id = block.id;
+    const options = block.querySelectorAll('.option');
+
+    options.forEach(option => {
+      option.addEventListener('click', function() {
+        const questionId = this.closest('.question-block').id;
+        const optionLetter = this.dataset.letter;
+        const currentOptions = this.closest('.question-block').querySelectorAll('.option');
+
+        // 如果是单选题或判断题，先清除所有选中状态
+        if (block.classList.contains('single-choice') || block.classList.contains('judge-question')) {
+          currentOptions.forEach(opt => opt.classList.remove('selected'));
+          userSelections[questionId] = [];
+        }
+
+        // 切换选中状态
+        if (this.classList.contains('selected')) {
+          this.classList.remove('selected');
+          const index = userSelections[questionId].indexOf(optionLetter);
+          if (index !== -1) {
+            userSelections[questionId].splice(index, 1);
+          }
+        } else {
+          this.classList.add('selected');
+          userSelections[questionId].push(optionLetter);
+        }
+      });
+    });
+  });
+}
+
+// ================= 应用功能函数 =================
+// 检查单个题目答案
+function checkSingleAnswer(questionId) {
+  const block = document.getElementById(questionId);
+  const userAnswer = [...userSelections[questionId]];
+  const correctAnswer = [...correctAnswers[questionId]];
+  const feedback = block.querySelector('.answer-feedback');
+  const correctAnswerDiv = block.querySelector('.correct-answer');
+  const options = block.querySelectorAll('.option');
+
+  // 重置所有选项样式
+  options.forEach(opt => {
+    opt.classList.remove('selected', 'correct', 'wrong');
+  });
+
+  // 标记正确答案和错误答案
+  options.forEach(option => {
+    if (option.dataset.correct === 'true') {
+      option.classList.add('correct');
+    }
+    if (userSelections[questionId].includes(option.dataset.letter) &&
+        option.dataset.correct !== 'true') {
+      option.classList.add('wrong');
+    }
+  });
+
+  // 检测题型
+  const isMultiChoice = block.classList.contains('multi-choice');
+  const isJudgeQuestion = block.classList.contains('judge-question');
+
+  let isCorrect = false;
+
+  if (isMultiChoice) {
+    // 多选题：必须满足两个条件：
+    // 1. 用户选择的选项数量等于正确答案数量
+    // 2. 用户选择的所有选项都是正确答案
+    isCorrect = userAnswer.length === correctAnswer.length &&
+                userAnswer.every(letter => correctAnswer.includes(letter));
+  } else if (isJudgeQuestion) {
+    // 判断题：直接比较第一个选项
+    isCorrect = userAnswer.length === 1 && userAnswer[0] === correctAnswer[0];
+  } else {
+    // 单选题：直接比较第一个选项
+    isCorrect = userAnswer.length === 1 && userAnswer[0] === correctAnswer[0];
+  }
+
+  if (isCorrect) {
+    feedback.textContent = '✓ 回答正确';
+    feedback.style.color = 'green';
+  } else {
+    feedback.textContent = '✗ 回答错误';
+    feedback.style.color = 'red';
+  }
+
+  // 清空用户选择
+  userSelections[questionId] = [];
+  feedback.style.display = 'block';
+  correctAnswerDiv.style.display = 'block';
+}
+
+// 重置题目状态
+function resetQuestion(questionId) {
+  const block = document.getElementById(questionId);
+  const options = block.querySelectorAll('.option');
+  const feedback = block.querySelector('.answer-feedback');
+  const correctAnswerDiv = block.querySelector('.correct-answer');
+
+  options.forEach(opt => {
+    opt.classList.remove('selected', 'correct', 'wrong', 'correct-highlight');
+  });
+
+  userSelections[questionId] = [];
+  feedback.style.display = 'none';
+  correctAnswerDiv.style.display = 'none';
+}
+
+// 标记/取消标记题目
+function toggleBookmark(id) {
+  const marker = document.querySelector(`#${id} .question-marker`);
+  bookmarks[id] = !bookmarks[id];
+
+  if (bookmarks[id]) {
+    marker.classList.add('marked');
+  } else {
+    marker.classList.remove('marked');
+  }
+
+  updateBookmarkList();
+  saveBookmarks();
+}
+
+// 更新标记列表
+function updateBookmarkList() {
+  const list = document.getElementById('bookmarkList');
+  list.innerHTML = '';
+
+  let hasBookmarks = false;
+
+  Object.keys(bookmarks).forEach(id => {
+    if (bookmarks[id]) {
+      hasBookmarks = true;
+      const question = document.getElementById(id);
+      if (question) {
+        const title = question.querySelector('.question-desc').textContent.trim();
+        const item = document.createElement('div');
+        item.className = 'bookmark-item';
+        item.innerHTML = `${title.substring(0, 30)}${title.length > 30 ? '...' : ''} <button onclick="scrollToQuestion('${id}')">跳转</button>`;
+        list.appendChild(item);
+      }
+    }
+  });
+
+  if (!hasBookmarks) {
+    list.innerHTML = '<div style="color:#999; text-align:center;">暂无标记题目</div>';
+  }
+}
+
+// 保存书签
+function saveBookmarks() {
+  localStorage.setItem('questionBookmarks', JSON.stringify(bookmarks));
+}
+
+// 加载书签
+function loadBookmarks() {
+  const saved = localStorage.getItem('questionBookmarks');
+  return saved ? JSON.parse(saved) : null;
+}
+
+// 跳转到指定题目
+function scrollToQuestion(id) {
+  const element = document.getElementById(id);
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+}
+
+// 滚动到顶部
+function scrollToTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// 滚动到底部
+function scrollToBottom() {
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+
+// 搜索题目
+function searchQuestions() {
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+  const blocks = document.querySelectorAll('.question-block');
+
+  blocks.forEach(block => {
+    const text = block.textContent.toLowerCase();
+    if (searchTerm === '' || text.includes(searchTerm)) {
+      block.style.display = 'block';
+    } else {
+      block.style.display = 'none';
+    }
+  });
+}
+
+// 切换所有答案显示状态
+function toggleAllAnswers() {
+  answersVisible = !answersVisible;
+  const btn = document.querySelector('.toggle-answers-btn');
+
+  document.querySelectorAll('.question-block').forEach(block => {
+    const correctAnswerDiv = block.querySelector('.correct-answer');
+    const options = block.querySelectorAll('.option');
+
+    if (answersVisible) {
+      if (correctAnswerDiv) correctAnswerDiv.style.display = 'block';
+      options.forEach(option => {
+        if (option.dataset.correct === 'true') {
+          option.classList.add('correct-highlight');
+        }
+      });
+      btn.textContent = '隐藏所有答案';
+    } else {
+      if (correctAnswerDiv) correctAnswerDiv.style.display = 'none';
+      options.forEach(option => {
+        option.classList.remove('correct-highlight');
+      });
+      btn.textContent = '显示所有答案';
+    }
+  });
+}
+
+// 清除所有标记
+function clearAllBookmarks() {
+  if (confirm('确定要清除所有标记题目吗？')) {
+    Object.keys(bookmarks).forEach(id => {
+      bookmarks[id] = false;
+      const marker = document.querySelector(`#${id} .question-marker`);
+      if (marker) marker.classList.remove('marked');
+    });
+
+    updateBookmarkList();
+    saveBookmarks();
+  }
+}
+
+// ============= 页面初始化 =============
+window.onload = function() {
+  // 设置生成时间
+  document.getElementById('generateTime').textContent = new Date().toLocaleDateString();
+
+  // 检查会话
+  const sessionData = localStorage.getItem('xxtSession');
+
+  if (sessionData) {
+    try {
+      const data = JSON.parse(sessionData);
+      startUserSession(data.username, data.displayName);
+    } catch (e) {
+      console.error("会话数据解析错误", e);
+    }
+  }
+};
+</script>
+</body>
+</html>

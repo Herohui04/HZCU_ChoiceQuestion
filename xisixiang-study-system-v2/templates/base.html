@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>习思想学习系统</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="user-info">
+        欢迎, {{ session.get('display_name', '游客') }}
+        {% if 'user_id' in session %}
+            <span class="logout-btn" onclick="logout()">退出</span>
+        {% endif %}
+    </div>
+
+    {% block content %}{% endblock %}
+
+    <script>
+        function logout() {
+            fetch('{{ url_for("logout") }}')
+                .then(() => window.location.href = '{{ url_for("login") }}');
+        }
+    </script>
+</body>
+</html>
